@@ -19,6 +19,11 @@ body {
     env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px);
 }
 
+.warning {
+  text-align: center;
+  color: #4F9068;
+}
+
 .ui-page {
   background-color: white;
 }
@@ -28,13 +33,13 @@ body {
   width: 100%;
   height: 50px;
   color: white;
-  background-color: #00704a;
+  background-color: #4F9068;
   border-color: white;
 }
 
 .active,
 .ui-select .ui-btn:hover {
-  background-color: #27251f !important;
+  background-color: #714D33 !important;
   color: white !important;
 }
 
@@ -55,11 +60,11 @@ input {
   -moz-box-shadow: none;
   -webkit-box-shadow: none;
   border-radius: 0;
-  border-bottom: 1px solid #00704a !important;
+  border-bottom: 1px solid #4F9068 !important;
 }
 
 .ui-input-text .ui-icon-delete::after {
-  background-color: #00704a;
+  background-color: #4F9068;
 }
 
 .ui-select .ui-btn {
@@ -67,7 +72,7 @@ input {
   box-shadow: none;
   -moz-box-shadow: none;
   -webkit-box-shadow: none;
-  background: #00704a;
+  background: #4F9068;
   color: white;
   font-weight: normal;
 }
@@ -77,19 +82,19 @@ input {
 }
 
 .ui-focus {
-  box-shadow: 0px 0px 5px 0px #00704a !important;
-  -moz-box-shadow: 0px 0px 5px 0px #00704a !important;
-  -webkit-box-shadow: 0px 0px 5px 0px #00704a !important;
+  box-shadow: 0px 0px 5px 0px #4F9068 !important;
+  -moz-box-shadow: 0px 0px 5px 0px #4F9068 !important;
+  -webkit-box-shadow: 0px 0px 5px 0px #4F9068 !important;
 }
 
 .small-text {
-  color: #00704a;
+  color: #4F9068;
   font-size: 12px !important;
   margin-top: 20px !important;
 }
 
 .green {
-  background-color: #00704a !important;
+  background-color: #4F9068 !important;
   color: white !important;
   font-weight: normal !important;
 }
@@ -107,13 +112,13 @@ input {
 #frm-confirm th,
 #frm-confirm td {
   border-radius: 5px;
-  border: 1px solid #00704a;
+  border: 1px solid #4F9068;
   padding: 10px;
   height: 25px;
 }
 
 #frm-confirm th {
-  background-color: #00704a;
+  background-color: #4F9068;
   color: white;
   font-weight: normal;
   white-space: nowrap;
@@ -135,7 +140,7 @@ input {
 }
 
 #page-list #btn-filter-popup {
-  background-color: #00704a !important;
+  background-color: #4F9068 !important;
   color: white !important;
   font-weight: normal !important;
   border-radius: 0 !important;
@@ -153,7 +158,7 @@ input {
 }
 
 #page-list #btn-reset {
-  background-color: #00704a !important;
+  background-color: #4F9068 !important;
   color: white !important;
   font-weight: normal !important;
   border-radius: 0 !important;
@@ -197,7 +202,7 @@ input {
   box-shadow: none !important;
   -moz-box-shadow: none !important;
   -webkit-box-shadow: none !important;
-  border: 1px solid #00704a;
+  border: 1px solid #4F9068;
 }
 
 #page-detail #frm-add-expense .ui-btn,
@@ -206,45 +211,8 @@ input {
   margin: 0;
 }
 
-#page-detail #img-preview {
-  display: none;
-}
-
-#page-detail #img-preview #background {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 100px;
-  z-index: 2;
-  opacity: 0.5;
-  background-color: #00704a;
-}
-
-#page-detail #img-preview #btn-close {
-  position: absolute;
-  right: 0;
-  z-index: 4;
-}
-
-#page-detail #img-preview #gallery {
-  white-space: nowrap;
-  margin-top: 5px;
-  position: absolute;
-  height: 100px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  z-index: 3;
-}
-
-#page-detail #img-preview #gallery img {
-  margin-right: 5px;
-  cursor: pointer;
-  height: 90px;
-}
-
 .avatar {
-  border: 1px solid #00704a;
+  border: 1px solid #4F9068;
   vertical-align: middle;
   width: 35px;
   height: 35px;
@@ -258,7 +226,7 @@ input {
 }
 
 .list {
-  border-top: 1px solid #00704a;
+  border-top: 1px solid #4F9068;
   padding: 5px 0px;
   box-shadow: none !important;
   -moz-box-shadow: none !important;
@@ -272,13 +240,13 @@ input {
 .list-date {
   text-align: center;
   height: 25px;
-  background-color: #00704a;
+  background-color: #4F9068;
   color: white;
   line-height: 25px;
 }
 
 #page-detail #expense #message {
-  border: 1px solid #00704a;
+  border: 1px solid #4F9068;
   border-radius: 5px;
   padding: 10px;
   -webkit-box-sizing: border-box;

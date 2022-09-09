@@ -20,6 +20,31 @@ $(document).on('vclick', '#page-about #panel-open', function () {
     $('#page-about #panel').panel('open');
 });
 
+$(document).on('vclick', '#page-home #btn-backup', function () {
+    let message = 'Backup to cloud successfully.';
+
+    log(message);
+    toast(message);
+});
+
+$(document).on('vclick', '#page-home #btn-reset', function () {
+    db.transaction(function (tx) {
+        let query = `DROP TABLE Expense`;
+        tx.executeSql(query, [], function (tx, result) {
+            log(`Drop table 'Expense' successfully.`);
+        }, transactionError);
+
+        query = `DROP TABLE Trip`;
+        tx.executeSql(query, [], function (tx, result) {
+            log(`Drop table 'Trip' successfully.`);
+
+            prepareDatabase(db);
+
+            toast('Reset successfully.')
+        }, transactionError);
+    });
+});
+
 // Page CREATE
 $(document).on('submit', '#page-create #frm-register', confirmTrip);
 $(document).on('submit', '#page-create #frm-confirm', registerTrip);
@@ -113,7 +138,10 @@ function registerTrip(e) {
         tx.executeSql(query, [name, destination, description, risk], transactionSuccess, transactionError);
 
         function transactionSuccess(tx, result) {
-            log(`Create a trip '${name}' successfully.`);
+            let message = `Added trip '${name}'.`;
+
+            log(message);
+            toast(message);
 
             $('#page-create #frm-register').trigger('reset');
             $('#page-create #frm-register #name').focus();
@@ -195,14 +223,24 @@ function deleteTrip(e) {
     let tripId = localStorage.getItem(currentTripId);
 
     db.transaction(function (tx) {
-        let query = 'DELETE FROM Expense WHERE TripId = ?';
+        let name = '';
+
+        let query = 'SELECT * FROM Trip WHERE Id = ?';
+        tx.executeSql(query, [tripId], function (tx, result) {
+            name = result.rows[0].Name;
+        }, transactionError);
+
+        query = 'DELETE FROM Expense WHERE TripId = ?';
         tx.executeSql(query, [tripId], function (tx, result) {
             log(`Delete expenses of trip '${tripId}' successfully.`);
         }, transactionError);
 
         query = 'DELETE FROM Trip WHERE Id = ?';
         tx.executeSql(query, [tripId], function (tx, result) {
-            log(`Delete trip '${tripId}' successfully.`);
+            let message = `Deleted trip '${name}'.`;
+
+            log(message);
+            toast(message);
 
             $('#page-detail #frm-delete').trigger('reset');
 
@@ -226,7 +264,10 @@ function addExpense(e) {
         tx.executeSql(query, [type, amount, comment, tripId], transactionSuccess, transactionError);
 
         function transactionSuccess(tx, result) {
-            log(`Add new expense to trip '${tripId}' successfully.`);
+            let message = `Added expense '${amount.toLocaleString("en-US")} VNĐ (${type})'.`;
+
+            log(message);
+            toast(message);
 
             $('#page-detail #frm-add-expense').trigger('reset');
             $('#page-detail #frm-add-expense').popup('close');
@@ -280,10 +321,10 @@ function showExpense() {
 }
 
 function showUpdate() {
-    var id = localStorage.getItem(currentTripId);
+    let id = localStorage.getItem(currentTripId);
 
     db.transaction(function (tx) {
-        var query = `SELECT * FROM Trip WHERE Id = ?`;
+        let query = `SELECT *, date(Date) as DateConverted FROM Trip WHERE Id = ?`;
 
         tx.executeSql(query, [id], transactionSuccess, transactionError);
 
@@ -292,17 +333,10 @@ function showUpdate() {
                 log(`Get details of trip '${result.rows[0].Name}' successfully.`);
 
                 $(`#page-detail #frm-update #name`).val(result.rows[0].Name);
-                $(`#page-detail #frm-update #street`).val(result.rows[0].Street);
-                $(`#page-detail #frm-update #price`).val(result.rows[0].Price);
-                $(`#page-detail #frm-update #bedroom`).val(result.rows[0].Bedroom);
-                $(`#page-detail #frm-update #reporter`).val(result.rows[0].Reporter);
-
-                addAddressOption($('#page-detail #frm-update #city'), 'City', result.rows[0].City);
-                addAddressOption_District($('#page-detail #frm-update #district'), result.rows[0].City, result.rows[0].District);
-                addAddressOption_Ward($('#page-detail #frm-update #ward'), result.rows[0].District, result.rows[0].Ward);
-
-                addOption($('#page-detail #frm-update #type'), Type, 'Type', result.rows[0].Type);
-                addOption($('#page-detail #frm-update #furniture'), Furniture, 'Furniture', result.rows[0].Furniture);
+                $(`#page-detail #frm-update #destination`).val(result.rows[0].Destination);
+                $(`#page-detail #frm-update #risk`).val(result.rows[0].Risk).slider("refresh");
+                $(`#page-detail #frm-update #date`).val(result.rows[0].DateConverted);
+                $(`#page-detail #frm-update #description`).val(result.rows[0].Description);
 
                 changePopup($('#page-detail #option'), $('#page-detail #frm-update'));
             }
@@ -313,40 +347,40 @@ function showUpdate() {
 function updateTrip(e) {
     e.preventDefault();
 
-    if (isValid('#page-detail #frm-update')) {
-        var id = localStorage.getItem(currentTripId);
-        var info = getFormInfoByValue('#page-detail #frm-update', false);
+    let id = localStorage.getItem(currentTripId);
+    let name = $('#page-detail #frm-update #name').val();
+    let destination = $('#page-detail #frm-update #destination').val();
+    let date = $('#page-detail #frm-update #date').val();
+    let description = $('#page-detail #frm-update #description').val();
+    let risk = $('#page-detail #frm-update #risk').val();
 
-        db.transaction(function (tx) {
-            var query = `UPDATE Trip
-                        SET Name = ?,
-                            Street = ?, City = ?, District = ?, Ward = ?,
-                            Type = ?, Bedroom = ?, Price = ?, Furniture = ?, Reporter = ?,
-                            DateAdded = julianday('now')
-                        WHERE Id = ?`;
+    db.transaction(function (tx) {
+        let query = `UPDATE Trip SET Name = ?, Destination = ?, Description = ?, Risk = ?, Date = julianday('${date}') WHERE Id = ?`;
 
-            tx.executeSql(query, [info.Name, info.Street, info.City, info.District, info.Ward, info.Type, info.Bedroom, info.Price, info.Furniture, info.Reporter, id], transactionSuccess, transactionError);
+        tx.executeSql(query, [name, destination, description, risk, id], transactionSuccess, transactionError);
 
-            function transactionSuccess(tx, result) {
-                log(`Update trip '${info.Name}' successfully.`);
+        function transactionSuccess(tx, result) {
+            let message = `Updated trip '${name}'.`;
 
-                showDetail();
+            log(message);
+            toast(message);
 
-                $('#page-detail #frm-update').popup('close');
-            }
-        });
-    }
+            showDetail();
+
+            $('#page-detail #frm-update').popup('close');
+        }
+    });
 }
 
 function filterTrip() {
-    var filter = $('#page-list #txt-filter').val().toLowerCase();
-    var li = $('#page-list #list-trip ul li');
+    let filter = $('#page-list #txt-filter').val().toLowerCase();
+    let li = $('#page-list #list-trip ul li');
 
-    for (var i = 0; i < li.length; i++) {
-        var a = li[i].getElementsByTagName("a")[0];
-        var text = a.textContent || a.innerText;
+    for (let i = 0; i < li.length; i++) {
+        let a = li[i].getElementsByTagName('a')[0];
+        let text = a.textContent || a.innerText;
 
-        li[i].style.display = text.toLowerCase().indexOf(filter) > -1 ? "" : "none";
+        li[i].style.display = text.toLowerCase().indexOf(filter) > -1 ? '' : 'none';
     }
 }
 
@@ -358,41 +392,23 @@ function openFormSearch(e) {
 function search(e) {
     e.preventDefault();
 
-    var name = $('#page-list #frm-search #name').val();
-    var street = $('#page-list #frm-search #street').val();
-    var city = $('#page-list #frm-search #city').val();
-    var district = $('#page-list #frm-search #district').val();
-    var ward = $('#page-list #frm-search #ward').val();
-    var type = $('#page-list #frm-search #type').val();
-    var bedroom = $('#page-list #frm-search #bedroom').val();
-    var furniture = $('#page-list #frm-search #furniture').val();
-    var reporter = $('#page-list #frm-search #reporter').val();
-    var priceMin = $('#page-list #frm-search #price-min').val();
-    var priceMax = $('#page-list #frm-search #price-max').val();
+    let name = $('#page-list #frm-search #name').val();
+    let destination = $('#page-list #frm-search #destination').val();
+    let date = $('#page-list #frm-search #date').val();
 
     db.transaction(function (tx) {
-        var query = `SELECT Trip.Id AS Id, Trip.Name AS Name, Price, Bedroom, Type, City.Name AS City
-                     FROM Trip LEFT JOIN City ON Trip.City = City.Id
-                     WHERE`;
+        let query = `SELECT *, date(Date) as DateConverted FROM Trip WHERE`;
 
-        query += name ? ` Trip.Name LIKE "%${name}%"   AND` : '';
-        query += street ? ` Street LIKE "%${street}%"   AND` : '';
-        query += city != -1 ? ` City = ${city}   AND` : '';
-        query += district != -1 ? ` District = ${district}   AND` : '';
-        query += ward != -1 ? ` Ward = ${ward}   AND` : '';
-        query += type != -1 ? ` Type = ${type}   AND` : '';
-        query += bedroom ? ` Bedroom = ${bedroom}   AND` : '';
-        query += furniture != -1 ? ` Furniture = ${furniture}   AND` : '';
-        query += reporter ? ` Reporter LIKE "%${reporter}%"   AND` : '';
-        query += priceMin ? ` Price >= ${priceMin}   AND` : '';
-        query += priceMax ? ` Price <= ${priceMax}   AND` : '';
+        query += name ? ` Name LIKE "%${name}%"   AND` : '';
+        query += destination ? ` Destination LIKE "%${destination}%"   AND` : '';
+        query += date ? ` Date = julianday('${date}')   AND` : '';
 
         query = query.substring(0, query.length - 6);
 
         tx.executeSql(query, [], transactionSuccess, transactionError);
 
         function transactionSuccess(tx, result) {
-            log(`Search properties successfully.`);
+            log(`Search trips successfully.`);
 
             displayList(result.rows);
 
@@ -410,18 +426,8 @@ function displayList(list) {
     for (let trip of list) {
         tripList +=
             `<li><a data-details='{"Id" : ${trip.Id}}'>
-                <h2 style='margin-bottom: 0px;'>${trip.Name}</h2>
-                <p style='margin-top: 2px; margin-bottom: 10px;'><small>${trip.Destination}</small></p>
-                
-                <div>
-                    <img src='img/icon-date.png' height='20px' style='margin-bottom: -5px;'>
-                    <strong style='font-size: 13px;'>${trip.DateConverted}<strong>
-                    
-                    &nbsp;&nbsp;
-                    
-                    <img src='img/icon-type.png' height='21px' style='margin-bottom: -5px;'>
-                    <strong style='font-size: 13px;'>${trip.Risk}<strong>
-                </div>
+                <h6>${trip.Name}</h6>
+                <p><small>${trip.DateConverted} - <em>${trip.Destination}</em></small></p>
             </a></li>`;
     }
     tripList += `</ul>`;
@@ -429,4 +435,31 @@ function displayList(list) {
     $('#list-trip').empty().append(tripList).listview('refresh').trigger('create');
 
     log(`Show list of trips successfully.`);
+}
+
+function toast(message) {
+    $("<div class='ui-loader ui-overlay-shadow ui-body-e ui-corner-all'><p>" + message + "</p></div>")
+        .css({
+            background: '#EF9175',
+            color: 'black',
+            font: '12px Arial, sans-serif',
+            display: 'block',
+            opacity: 1,
+            position: 'fixed',
+            padding: '2px',
+            'border-radius': '25px',
+            'text-align': 'center',
+            'box-shadow': 'none',
+            '-moz-box-shadow': 'none',
+            '-webkit-box-shadow': 'none',
+            width: '250px',
+            left: ($(window).width() - 254) / 2,
+            top: $(window).height() - 115
+        })
+
+        .appendTo($.mobile.pageContainer).delay(3500)
+
+        .fadeOut(400, function () {
+            $(this).remove();
+        });
 }
