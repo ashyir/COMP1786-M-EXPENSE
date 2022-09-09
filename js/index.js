@@ -4,30 +4,30 @@ let db = window.openDatabase('FGW', '1.0', 'FGW', 20000);
 
 $(document).on('ready', onDeviceReady);
 
-$(document).on('vclick', '#page-home #panel-open', function () {
+$(document).on('click', '#page-home #panel-open', function () {
     $('#page-home #panel').panel('open');
 });
 
-$(document).on('vclick', '#page-create #panel-open', function () {
+$(document).on('click', '#page-create #panel-open', function () {
     $('#page-create #panel').panel('open');
 });
 
-$(document).on('vclick', '#page-list #panel-open', function () {
+$(document).on('click', '#page-list #panel-open', function () {
     $('#page-list #panel').panel('open');
 });
 
-$(document).on('vclick', '#page-about #panel-open', function () {
+$(document).on('click', '#page-about #panel-open', function () {
     $('#page-about #panel').panel('open');
 });
 
-$(document).on('vclick', '#page-home #btn-backup', function () {
+$(document).on('click', '#page-home #btn-backup', function () {
     let message = 'Backup to cloud successfully.';
 
     log(message);
     toast(message);
 });
 
-$(document).on('vclick', '#page-home #btn-reset', function () {
+$(document).on('click', '#page-home #btn-reset', function () {
     db.transaction(function (tx) {
         let query = `DROP TABLE Expense`;
         tx.executeSql(query, [], function (tx, result) {
@@ -48,7 +48,7 @@ $(document).on('vclick', '#page-home #btn-reset', function () {
 // Page CREATE
 $(document).on('submit', '#page-create #frm-register', confirmTrip);
 $(document).on('submit', '#page-create #frm-confirm', registerTrip);
-$(document).on('vclick', '#page-create #frm-confirm #edit', function () {
+$(document).on('click', '#page-create #frm-confirm #edit', function () {
     $('#page-create #frm-confirm').popup('close');
 });
 
@@ -59,29 +59,29 @@ $(document).on('submit', '#page-list #frm-search', search);
 
 $(document).on('keyup', $('#page-list #txt-filter'), filterTrip);
 
-$(document).on('vclick', '#page-list #btn-reset', showList);
-$(document).on('vclick', '#page-list #btn-filter-popup', openFormSearch);
-$(document).on('vclick', '#page-list #list-trip li a', navigatePageDetail);
+$(document).on('click', '#page-list #btn-reset', showList);
+$(document).on('click', '#page-list #btn-filter-popup', openFormSearch);
+$(document).on('click', '#page-list #list-trip li a', navigatePageDetail);
 
 // Page DETAIL
 $(document).on('pagebeforeshow', '#page-detail', showDetail);
 
-$(document).on('vclick', '#page-detail #btn-toggle-expense', function () {
-    var expenseDisplay = $('#page-detail #expense').css('display');
+$(document).on('click', '#page-detail #btn-toggle-expense', function () {
+    let expenseDisplay = $('#page-detail #expense').css('display');
 
     $('#page-detail #expense').css('display', expenseDisplay == 'none' ? 'block' : 'none');
 });
 
-$(document).on('vclick', '#page-detail #btn-update-popup', showUpdate);
-$(document).on('vclick', '#page-detail #btn-delete-popup', function () {
+$(document).on('click', '#page-detail #btn-update-popup', showUpdate);
+$(document).on('click', '#page-detail #btn-delete-popup', function () {
     changePopup($('#page-detail #option'), $('#page-detail #frm-delete'));
 });
 
-$(document).on('vclick', '#page-detail #frm-update #cancel', function () {
+$(document).on('click', '#page-detail #frm-update #cancel', function () {
     $('#page-detail #frm-update').popup('close');
 });
 
-$(document).on('vclick', '#page-detail #frm-add-expense #cancel', function () {
+$(document).on('click', '#page-detail #frm-add-expense #cancel', function () {
     $('#page-detail #frm-add-expense').popup('close');
 });
 
